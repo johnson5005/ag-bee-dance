@@ -42,8 +42,9 @@ library('magrittr')        # Pipes
 
 #setwd("/Users/dougsponsler/Documents/Research/CDRC_dance_analysis") # Sponsler: path to the working directory on my laptop
 # https://docs.google.com/spreadsheets/d/1kUu7DLIM1LaOsXZAV3K6hwke2TilBNdlBG5lYIMpd84/edit#gid=0
-gs_title("2017 Beekeeping Lab Dance Analysis") %>%
-  gs_download(ws = "Data", to = "2017_Class_soybean_dance.csv", overwrite = TRUE)
+waggleFile <- "2016_soybean_dance.csv"
+gs_title("2016 Dance Analysis") %>%
+  gs_download(ws = "Data", to = waggleFile, overwrite = TRUE)
 
 #read the calibration data from ESM_5.csv
 calibDataAgg <- read.csv("ESM_5.csv", row.names = 1)
@@ -69,7 +70,7 @@ calibDataAgg$heading <- circular(calibDataAgg$heading,
 # store the subset of dances going to that feeder in waggleData
 #waggleData <- calibDataAgg[calibDataAgg$dance.id %in% dance.ids,]
 
-waggleData <- read.csv("2017_Class_soybean_dance.csv") # Sponsler: path to our dance data
+waggleData <- read.csv(waggleFile) # Sponsler: path to our dance data
 waggleData <- subset(waggleData, flag == 1) # Sponsler: a flag field removes empty or incomplete lines
 
 # we only want the first dance of every individual bee, and we prepare a function to achieve that
