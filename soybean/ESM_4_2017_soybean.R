@@ -30,6 +30,7 @@
 # or adapt the paths for the instructions below
 
 # loading packages needed in this script
+# install.packages(c("circular", "rjags", "sp", "rgdal", "raster", "png", "googlesheets", "magrittr"))
 library('circular')	# for circular stats
 library('rjags')	# interface with JAGS
 library('sp')		# spatial stats, coordinates etc
