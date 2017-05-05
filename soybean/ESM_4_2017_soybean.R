@@ -40,11 +40,13 @@ library('png')          # to save figures to jpeg
 library('googlesheets')  # Read from GoogleDocs
 library('magrittr')        # Pipes
 
+## Set local working directory (uncomment and change)
 #setwd("/Users/dougsponsler/Documents/Research/CDRC_dance_analysis") # Sponsler: path to the working directory on my laptop
-# https://docs.google.com/spreadsheets/d/1kUu7DLIM1LaOsXZAV3K6hwke2TilBNdlBG5lYIMpd84/edit#gid=0
 waggleFile <- "2016_soybean_dance.csv"
 gs_title("2016 Dance Analysis") %>%
   gs_download(ws = "Data", to = waggleFile, overwrite = TRUE)
+waggleData <- read.csv(waggleFile) # Sponsler: path to our dance data
+waggleData <- subset(waggleData, flag == 1) # Sponsler: a flag field removes empty or incomplete lines
 
 #read the calibration data from ESM_5.csv
 calibDataAgg <- read.csv("ESM_5.csv", row.names = 1)
@@ -54,91 +56,54 @@ calibDataAgg$heading <- circular(calibDataAgg$heading,
 								 rotation = "clock",
 								 zero = pi/2)
 
-# prepare your own data, i.e. create or read from file a
-# data frame with "duration" in sec and "heading" in radians
-# DO ONE DANCE AT A TIME, else the prior will overwhelm the data
-
-# as an example, we will use our own data for dances that have gone to
-# feeder at 1 km, using only the first dance of every bee.
-
-# dance ids to that feeder
-#dance.ids <- c(237, 238, 239, 240, 241, 242, 243, 244, 245, 246,
- #              247, 248, 249, 250, 251, 252, 253, 254, 255, 256,
-  #             257, 258, 259, 260, 261, 262, 263, 264, 265, 266,
-   #            267, 285, 286, 268, 269, 270)
-
-# store the subset of dances going to that feeder in waggleData
-#waggleData <- calibDataAgg[calibDataAgg$dance.id %in% dance.ids,]
-
-waggleData <- read.csv(waggleFile) # Sponsler: path to our dance data
-waggleData <- subset(waggleData, flag == 1) # Sponsler: a flag field removes empty or incomplete lines
-
-# we only want the first dance of every individual bee, and we prepare a function to achieve that
-#getFirstElement <- function(pVector){
-	#reslt <- NA
-	#if(length(pVector) > 0){
-  	  #reslt <- pVector[1]
-  	#}
-  #reslt
-  #}
-
-# now only select the first dance of every bee
-#waggleData <- aggregate(cbind(dance.id = waggleData$dance.id,
- #                             duration = waggleData$duration,
-                             #distance = waggleData$distance,
-  #                            heading = waggleData$heading), #by = list(bee.id = waggleData$bee.id),
-                       # getFirstElement)
-
-# make the data properly circular
+## make the data properly circular
 waggleData$heading <- circular(waggleData$heading.radians,
                                type = "angle",
 							   unit = "radian",
 							   rotation = "clock",
 							   zero = pi/2)
 
-# how many samples per dance; think carefully about how many samples you really need:
-# the more samples, the longer it will take to simulate your dances
+## how many samples per dance; think carefully about how many samples you really need:
+## the more samples, the longer it will take to simulate your dances
 finalSampleSize <- 1000
 thinning <- 100
 noJagsSamples <- thinning*finalSampleSize
 
-# preparations to calculate point coords from angle and distance
+## preparations to calculate point coords from angle and distance
 #hiveEasting <- 534939				# the UK grid easting of the hives in meters
 hiveEasting <- 292263.656365 # Sponsler: the UTM 17N (EPSG:26917) easting of the hives in meters
 #hiveNorthing <- 108900				# the UK grid northing of the hives in meters
 hiveNorthing <- 4426271.356893 # Sponsler: the UTM 17N (EPSG:26917) northing of the hives in meters
 
-# to calculate the rasters
+## to calculate the rasters
 distanceToHives <- 10000			# how far should the rasters extend from the hives in meters
 gridCellSize <- 25				# grid size in meters
 noCells <- 2*distanceToHives/gridCellSize	# the number of cols and rows needed to get grid of meters
 defaultMatrix <- matrix(data = 0,		# create a default matrix as a basis for our dance counts
                         ncol = noCells, nrow = noCells)
 
-# prepare an georeferenced extent (in GIS terms); adapt to fit your coordinate system
+## prepare an georeferenced extent (in GIS terms); adapt to fit your coordinate system
 coordPanel <- data.frame(cbind(easting = c(hiveEasting, hiveEasting - distanceToHives,
                                  hiveEasting + distanceToHives),
                                northing = c(hiveNorthing, hiveNorthing - distanceToHives,
                                  hiveNorthing + distanceToHives)))
 coordinates(coordPanel) <- c("easting", "northing")
-#proj4string(coordPanel) = CRS("+init=epsg:27700")
 proj4string(coordPanel) = CRS("+init=epsg:26917") # Sponsler: our CRS is UTM 17N (EPSG:26917)
 
 
-# prepare a raster with the extent; adapt to fit your coordinate system
+## prepare a raster with the extent; adapt to fit your coordinate system
 numCoordPanel <- as.data.frame(coordPanel)
 temp.rast <- raster(ncols = noCells, nrows = noCells)
 extent(temp.rast) <- extent(c(numCoordPanel[2:3,1], numCoordPanel[2:3,2]))
-#proj4string(temp.rast) = CRS("+init=epsg:27700")
 proj4string(temp.rast) = CRS("+init=epsg:26917") # Sponsler: our CRS is UTM 17N (EPSG:26917)
 
-# create a raster that will store the actual probability-visited data
+## create a raster that will store the actual probability-visited data
 total.temp.rast <- temp.rast
 
-# only select tagged bees for calibration dances
+## only select tagged bees for calibration dances
 calibDataAggBees <- calibDataAgg[!is.na(calibDataAgg$bee.id),]
 
-# prepare the variables for the calibration model
+## prepare the variables for the calibration model
 N1 <- length(calibDataAggBees$duration)
 x <- calibDataAggBees$distance
 y <- calibDataAggBees$duration
@@ -146,7 +111,7 @@ y <- calibDataAggBees$duration
 K <- length(unique(calibDataAggBees$bee.id))
 bee <- factor(calibDataAggBees$bee.id)
 
-# loop through all the dances
+## loop through all the dances
 for(i in 1:length(waggleData$dancer.id)){
   cat(paste(i, "of", length(waggleData$dancer.id), "\n"))
   # choose only the i^th dance
