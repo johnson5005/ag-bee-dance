@@ -39,9 +39,9 @@ library('png')          # to save figures to jpeg
 library('googlesheets')  # Read from GoogleDocs
 library('magrittr')        # Pipes
 
+## Uncomment to set working directory
 #setwd("/Users/dougsponsler/Documents/Research/CDRC_dance_analysis") # Sponsler: path to the working directory on my laptop
 
-#https://docs.google.com/spreadsheets/d/1buVX4jrnn0UO6EMBiQxe7aVXboJ2Ey_keCR5TsC55ck/edit?usp=sharing
 gs_title("2016 Dance Analysis") %>%
 #gs_key("1buVX4jrnn0UO6EMBiQxe7aVXboJ2Ey_keCR5TsC55ck") %>%
   gs_download(ws = "Data", to = "soybean_dance.csv", overwrite = TRUE)
