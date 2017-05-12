@@ -111,9 +111,9 @@ y <- calibDataAggBees$duration
 K <- length(unique(calibDataAggBees$bee.id))
 bee <- factor(calibDataAggBees$bee.id)
 
-## loop through all the dances
-for(i in 1:length(waggleData$dancer.id)){
-  cat(paste(i, "of", length(waggleData$dancer.id), "\n"))
+# loop through all the dances
+for(i in 1:length(waggleData$id)){
+  cat(paste(i, "of", length(waggleData$id), "\n"))
   # choose only the i^th dance
   tempData <- waggleData[i,]
 
@@ -147,13 +147,13 @@ for(i in 1:length(waggleData$dancer.id)){
   rel.dance.northing <- as.numeric(hiveNorthing + sin(-(sim.heading - pi/2))*sim.distances)
 
   # save as points for further use
-  temp.points <- data.frame(cbind(dance.id = rep(tempData$dance.id, length(rel.dance.easting)),
+  temp.points <- data.frame(cbind(id = rep(tempData$id, length(rel.dance.easting)),
                                   easting = as.numeric(rel.dance.easting),
                                   northing = as.numeric(rel.dance.northing)))
 
   # save the points in a comma seperated value file
   # csv points can be imported into GIS for further processing
-  write.csv(temp.points, paste("data/sim.dance_", tempData$dance.id, ".csv", sep = ""), row.names = FALSE)
+  write.csv(temp.points, paste("data/sim.dance_", tempData$id, ".csv", sep = ""), row.names = FALSE)
 
   if(i <= 1){ # on the first pass create a new file, else add the data to the existing file
     write.csv(temp.points, "data/simAllDances.csv", row.names = FALSE)
@@ -179,7 +179,7 @@ for(i in 1:length(waggleData$dancer.id)){
   g <- as(temp.rast.UTM17N, 'SpatialGridDataFrame') # Sponsler:
 
   # save the file to disk (can be imported into GIS)
-  currentFileName <- paste("data/raster_", tempData$dance.id, ".asc", sep = "")
+  currentFileName <- paste("data/raster_", tempData$id, ".asc", sep = "")
   write.asciigrid(g, currentFileName)
 
   if(i <= 1){ # on the first pass create a new file, else add the data to the existing file
@@ -193,7 +193,7 @@ for(i in 1:length(waggleData$dancer.id)){
 }
 
 # save the combined dances as one raster file ready to be imported in ArcGIS
-total.temp.rast <- total.temp.rast$dance.id
+total.temp.rast <- total.temp.rast$id
 g.total <- as(total.temp.rast, 'SpatialGridDataFrame')
 write.asciigrid(g.total, "data/totalRaster.asc")
 
