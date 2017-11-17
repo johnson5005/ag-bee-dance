@@ -1,4 +1,5 @@
-######## This script has been adapted for a new dataset by Douglas Sponsler. Unused portions of the original script have been commented out but not deleted. Additions are followed by the tag # Sponsler:
+######## This script has been adapted for a new dataset by Douglas Sponsler and Reed Johnson (johnson.5005@osu.edu). 
+######## Unused portions of the original script have been commented out but not deleted. Additions are followed by the tag # Sponsler:
 
 # Electronic Supplementary Material 4 - R script to simulate dances from known waggle
 # dance durations and headings.
@@ -9,10 +10,10 @@
 
 # Journal: Journal of Comparative Physiology A
 
-# Authors: Roger Sch�rch, Margaret J. Couvillon, Dominic D. R. Burns, Kiah
+# Authors: Roger Schurch, Margaret J. Couvillon, Dominic D. R. Burns, Kiah
 # Tasman, David Waxman and Francis L. W. Ratnieks
 
-# Corresponding author: Roger Sch�rch, Evolution, Behaviour and
+# Corresponding author: Roger Schurch, Evolution, Behaviour and
 # Environment, School of Life Sciences, University of Sussex, Brighton,
 # BN1 9QG, United Kingdom, R.Schuerch@sussex.ac.uk
 
@@ -42,7 +43,12 @@ library('magrittr')        # Pipes
 
 ## Set local working directory (uncomment and change)
 #setwd("/Users/dougsponsler/Documents/Research/CDRC_dance_analysis") # Sponsler: path to the working directory on my laptop
-waggleFile <- "2016_soybean_dance.csv"
+setwd("./soybean") # Sponsler: path to the working directory within the Git repository
+## Create data subfolder if it doesn't already exist
+dir.create("data", showWarnings = FALSE)
+
+## Import dance data file
+waggleFile <- "2016_soybean_dance.csv" # Set the name for the file to use
 ## Download data from GoogleSheets using 'googlesheets' library.  Store as csv file specified in "wagglefile"
 #gs_title("2016 Dance Analysis") %>%
 #  gs_download(ws = "Data", to = waggleFile, overwrite = TRUE)
