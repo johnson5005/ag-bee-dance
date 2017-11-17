@@ -47,12 +47,23 @@ dir.create("data", showWarnings = FALSE)
 ## Import dance data file
 waggleFile <- "2016_soybean_dance.csv" # Set the name for the file to use
 ## Download data from GoogleSheets using 'googlesheets' library.  Store as csv file specified in "wagglefile"
-## "2016 Dance Analysis" https://docs.google.com/spreadsheets/d/1buVX4jrnn0UO6EMBiQxe7aVXboJ2Ey_keCR5TsC55ck/edit#gid=0
-#gs_title("2016 Dance Analysis") %>%
-#  gs_download(ws = "Data", to = waggleFile, overwrite = TRUE)
+# "2016 Dance Analysis" https://docs.google.com/spreadsheets/d/1buVX4jrnn0UO6EMBiQxe7aVXboJ2Ey_keCR5TsC55ck/edit#gid=0
+gs_title("2016 Dance Analysis") %>%
+  gs_download(ws = "Data", to = waggleFile, overwrite = TRUE)
 waggleData <- read.csv(waggleFile) # Sponsler: path to our dance data
+
+## Calculate azimuth
+waggleData$date <- paste(waggleData$year, sprintf("%02d", waggleData$month), sprintf("%02d", waggleData$day), sep="-")
+waggleData$time <- paste(sprintf("%02d", waggleData$hour), sprintf("%02d", waggleData$min), sep=":")
+waggleData$dateTime <- as.POSIXct(strptime(paste(waggleData$date, waggleData$time, sep=" "), "%Y-%m-%d %H:%M"), tz="US/Eastern")
+attr(waggleData$dateTime, "tzone") <- "UTC" ## Convert to UTC 
+waggleData$azimuth.calc <- sunAngle(waggleData$dateTime, waggleData$lon, waggleData$lat, useRefraction=TRUE)$azimuth
+
+
+## Remove flagged lines
 waggleData <- subset(waggleData, flag != 1) # Sponsler: a flag field removes empty or incomplete lines
 waggleData <- subset(waggleData, dance.found. != "no") #Johnson: remove lines for which no dances were recorded
+
 
 #read the calibration data from ESM_5.csv
 calibDataAgg <- read.csv("ESM_5.csv", row.names = 1)
