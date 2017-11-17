@@ -57,8 +57,12 @@ waggleData$date <- paste(waggleData$year, sprintf("%02d", waggleData$month), spr
 waggleData$time <- paste(sprintf("%02d", waggleData$hour), sprintf("%02d", waggleData$min), sep=":")
 waggleData$dateTime <- as.POSIXct(strptime(paste(waggleData$date, waggleData$time, sep=" "), "%Y-%m-%d %H:%M"), tz="US/Eastern")
 attr(waggleData$dateTime, "tzone") <- "UTC" ## Convert to UTC 
-waggleData$azimuth.calc <- sunAngle(waggleData$dateTime, waggleData$lon, waggleData$lat, useRefraction=TRUE)$azimuth
+waggleData$azimuth <- sunAngle(waggleData$dateTime, waggleData$lon, waggleData$lat, useRefraction=TRUE)$azimuth
 
+## Calculate heading in radians
+waggleData[is.na(waggleData$skew),]$skew <- 0
+waggleData$heading.degrees <- (((waggleData$mean_angle-waggleData$skew+waggleData$azimuth)+90) %% 360) ## Something not concordant with GoogleDoc calculation here
+waggleData$heading.radians <- (waggleData$heading.degrees*pi)/180
 
 ## Remove flagged lines
 waggleData <- subset(waggleData, flag != 1) # Sponsler: a flag field removes empty or incomplete lines
