@@ -43,8 +43,9 @@ library('magrittr')        # Pipes
 ## Set local working directory (uncomment and change)
 #setwd("/Users/dougsponsler/Documents/Research/CDRC_dance_analysis") # Sponsler: path to the working directory on my laptop
 waggleFile <- "2016_soybean_dance.csv"
-gs_title("2016 Dance Analysis") %>%
-  gs_download(ws = "Data", to = waggleFile, overwrite = TRUE)
+## Download data from GoogleSheets using 'googlesheets' library.  Store as csv file specified in "wagglefile"
+#gs_title("2016 Dance Analysis") %>%
+#  gs_download(ws = "Data", to = waggleFile, overwrite = TRUE)
 waggleData <- read.csv(waggleFile) # Sponsler: path to our dance data
 waggleData <- subset(waggleData, flag == 1) # Sponsler: a flag field removes empty or incomplete lines
 
