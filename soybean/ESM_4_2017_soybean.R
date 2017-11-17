@@ -17,9 +17,6 @@
 # Environment, School of Life Sciences, University of Sussex, Brighton,
 # BN1 9QG, United Kingdom, R.Schuerch@sussex.ac.uk
 
-# Last revised: 2013-08-12
-# Older revision: 2013-05-27
-
 # script files that go with this script:
 # ESM_3.jag
 
@@ -31,7 +28,7 @@
 # or adapt the paths for the instructions below
 
 # loading packages needed in this script
-# install.packages(c("circular", "rjags", "sp", "rgdal", "raster", "png", "googlesheets", "magrittr"))
+# install.packages(c("circular", "rjags", "sp", "rgdal", "raster", "png", "googlesheets", "magrittr", "oce"))
 library('circular')	# for circular stats
 library('rjags')	# interface with JAGS
 library('sp')		# spatial stats, coordinates etc
@@ -40,6 +37,7 @@ library('raster')       # for plotting spatial data
 library('png')          # to save figures to jpeg
 library('googlesheets')  # Read from GoogleDocs
 library('magrittr')        # Pipes
+library('oce')  # Calculation of azimuth
 
 ## Set local working directory (uncomment and change)
 setwd("./soybean") # Sponsler: path to the working directory within the Git repository
@@ -53,7 +51,8 @@ waggleFile <- "2016_soybean_dance.csv" # Set the name for the file to use
 #gs_title("2016 Dance Analysis") %>%
 #  gs_download(ws = "Data", to = waggleFile, overwrite = TRUE)
 waggleData <- read.csv(waggleFile) # Sponsler: path to our dance data
-waggleData <- subset(waggleData, flag == 1) # Sponsler: a flag field removes empty or incomplete lines
+waggleData <- subset(waggleData, flag != 1) # Sponsler: a flag field removes empty or incomplete lines
+waggleData <- subset(waggleData, dance.found. != "no") #Johnson: remove lines for which no dances were recorded
 
 #read the calibration data from ESM_5.csv
 calibDataAgg <- read.csv("ESM_5.csv", row.names = 1)
