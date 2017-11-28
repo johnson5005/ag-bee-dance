@@ -66,6 +66,7 @@ waggleData$heading.radians <- (waggleData$heading.degrees*pi)/180
 
 ## Remove flagged lines
 waggleData <- subset(waggleData, flag != 1) # Sponsler: a flag field removes empty or incomplete lines
+waggleData <- subset(waggleData, flag != "X")
 waggleData <- subset(waggleData, dance.found. != "no") #Johnson: remove lines for which no dances were recorded
 
 
