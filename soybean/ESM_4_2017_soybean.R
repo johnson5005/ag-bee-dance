@@ -52,7 +52,7 @@ gs_title("2016 Dance Analysis") %>%
   gs_download(ws = "Data", to = waggleFile, overwrite = TRUE)
 waggleData <- read.csv(waggleFile) # Sponsler: path to our dance data
 
-## Calculate azimuth
+## Fix dates/times and use them to calculate azimuth
 waggleData$date <- paste(waggleData$year, sprintf("%02d", waggleData$month), sprintf("%02d", waggleData$day), sep="-")
 waggleData$time <- paste(sprintf("%02d", waggleData$hour), sprintf("%02d", waggleData$min), sep=":")
 waggleData$dateTime <- as.POSIXct(strptime(paste(waggleData$date, waggleData$time, sep=" "), "%Y-%m-%d %H:%M"), tz="US/Eastern")
@@ -69,6 +69,9 @@ waggleData <- subset(waggleData, flag != 1) # Sponsler: a flag field removes emp
 waggleData <- subset(waggleData, flag != "X")
 waggleData <- subset(waggleData, dance.found. != "no") #Johnson: remove lines for which no dances were recorded
 
+## Designate Bloom vs. Non-Bloom dates
+waggleData$bloom <- FALSE
+waggleData[waggleData$dateTime >= "2016-06-27" & waggleData$dateTime <= "2016-08-04",]$bloom <- TRUE
 
 #read the calibration data from ESM_5.csv
 calibDataAgg <- read.csv("ESM_5.csv", row.names = 1)
