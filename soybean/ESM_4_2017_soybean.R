@@ -73,6 +73,9 @@ waggleData <- subset(waggleData, dance.found. != "no") #Johnson: remove lines fo
 waggleData$bloom <- FALSE
 waggleData[waggleData$dateTime >= "2016-06-27" & waggleData$dateTime <= "2016-08-04",]$bloom <- TRUE
 
+## Get summary of dances recorded by hive and by date
+table(waggleData[,c("hive", "date")])
+
 ## Synthetic variable with hive and date
 waggleData$hiveDate <- paste(waggleData$hive, waggleData$date, sep=".")
 
