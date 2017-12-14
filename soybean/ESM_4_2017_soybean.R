@@ -73,6 +73,13 @@ waggleData <- subset(waggleData, dance.found. != "no") #Johnson: remove lines fo
 waggleData$bloom <- FALSE
 waggleData[waggleData$dateTime >= "2016-06-27" & waggleData$dateTime <= "2016-08-04",]$bloom <- TRUE
 
+## Synthetic variable with hive and date
+waggleData$hiveDate <- paste(waggleData$hive, waggleData$date, sep=".")
+
+##################################
+## Set calibration
+#################################
+
 #read the calibration data from ESM_5.csv
 calibDataAgg <- read.csv("ESM_5.csv", row.names = 1)
 calibDataAgg$heading <- circular(calibDataAgg$heading,
@@ -136,116 +143,126 @@ y <- calibDataAggBees$duration
 K <- length(unique(calibDataAggBees$bee.id))
 bee <- factor(calibDataAggBees$bee.id)
 
-# loop through all the dances
-for(i in 1:length(waggleData$id)){
-  cat(paste(i, "of", length(waggleData$id), "\n"))
-  # choose only the i^th dance
-  tempData <- waggleData[i,]
-
-  # prepare the variables for the prediction model
-  N2 <- length(tempData$mean_duration.sec)
-  x2 <- rep(NA, length(tempData$mean_duration.sec))
-  y2 <- tempData$mean_duration.sec
-
-  # load the model from file and submit the data
-  jags <- jags.model('ESM_3.jag',
-                     data = list('x' = x, 'y' = y,
-                       'N1' = N1, 'K' = K, 'bee' = bee, 'N2' = N2, 'x2' = x2, 'y2' = y2),
-                     n.chains = 1,
-                     n.adapt = 100)
-
-  # update for the burn-in
-  update(jags, 100000)
-
-  # sample from the posterior
-  samples <- coda.samples(jags, c('x2'), noJagsSamples, thin = thinning)
-
-  # save the samples in a handy variable
-  sim.distances <-  samples[,'x2'][[1]]
-
-  # the 1000 draws have to be taken according to what is in the posterior samples for distance
-  sim.heading <- rvonmises(finalSampleSize, mu = tempData$heading,
-                           kappa = 24.9, control.circular = list("radians"))
-
-  # calculate the coordinates from the vector with origin of the hives
-  rel.dance.easting <- as.numeric(hiveEasting + cos(-(sim.heading- pi/2))*sim.distances)
-  rel.dance.northing <- as.numeric(hiveNorthing + sin(-(sim.heading - pi/2))*sim.distances)
-
-  # save as points for further use
-  temp.points <- data.frame(cbind(id = rep(tempData$id, length(rel.dance.easting)),
-                                  easting = as.numeric(rel.dance.easting),
-                                  northing = as.numeric(rel.dance.northing)))
-
-  # save the points in a comma seperated value file
-  # csv points can be imported into GIS for further processing
-  write.csv(temp.points, paste("data/sim.dance_", tempData$id, ".csv", sep = ""), row.names = FALSE)
-
-  if(i <= 1){ # on the first pass create a new file, else add the data to the existing file
-    write.csv(temp.points, "data/simAllDances.csv", row.names = FALSE)
-  }else{
-    # save the total counts
-    tempData2 <- read.csv("data/simAllDances.csv")
-    tempData2 <- rbind(tempData2, temp.points)
-    write.csv(tempData2, "data/simAllDances.csv", row.names = FALSE)
+#############################################
+## Process 
+##################################################
+# loop through all hiveDates
+for (j in unique(waggleData$hiveDate)) {
+  waggleDataDate <- waggleData[waggleData$hiveDate == j,]
+  # loop through all the dances
+  for(i in 1:length(waggleDataDate$id)){
+    cat(paste(i, "of", length(waggleDataDate$id), "\n"))
+    # choose only the i^th dance
+    tempData <- waggleDataDate[i,]
+    
+    # prepare the variables for the prediction model
+    N2 <- length(tempData$mean_duration.sec)
+    x2 <- rep(NA, length(tempData$mean_duration.sec))
+    y2 <- tempData$mean_duration.sec
+    
+    # load the model from file and submit the data
+    jags <- jags.model('ESM_3.jag',
+                       data = list('x' = x, 'y' = y,
+                                   'N1' = N1, 'K' = K, 'bee' = bee, 'N2' = N2, 'x2' = x2, 'y2' = y2),
+                       n.chains = 1,
+                       n.adapt = 100)
+    
+    # update for the burn-in
+    update(jags, 100000)
+    
+    # sample from the posterior
+    samples <- coda.samples(jags, c('x2'), noJagsSamples, thin = thinning)
+    
+    # save the samples in a handy variable
+    sim.distances <-  samples[,'x2'][[1]]
+    
+    # the 1000 draws have to be taken according to what is in the posterior samples for distance
+    sim.heading <- rvonmises(finalSampleSize, mu = tempData$heading,
+                             kappa = 24.9, control.circular = list("radians"))
+    
+    # calculate the coordinates from the vector with origin of the hives
+    rel.dance.easting <- as.numeric(hiveEasting + cos(-(sim.heading- pi/2))*sim.distances)
+    rel.dance.northing <- as.numeric(hiveNorthing + sin(-(sim.heading - pi/2))*sim.distances)
+    
+    # save as points for further use
+    temp.points <- data.frame(cbind(id = rep(tempData$id, length(rel.dance.easting)),
+                                    easting = as.numeric(rel.dance.easting),
+                                    northing = as.numeric(rel.dance.northing)))
+    
+    # save the points in a comma seperated value file
+    # csv points can be imported into GIS for further processing
+    write.csv(temp.points, paste("data/sim.dance_", tempData$id, ".csv", sep = ""), row.names = FALSE)
+    
+    if(i <= 1){ # on the first pass create a new file, else add the data to the existing file
+      write.csv(temp.points, "data/simAllDances.csv", row.names = FALSE)
+    }else{
+      # save the total counts
+      tempData2 <- read.csv("data/simAllDances.csv")
+      tempData2 <- rbind(tempData2, temp.points)
+      write.csv(tempData2, "data/simAllDances.csv", row.names = FALSE)
+    }
+    
+    # georeference the points on the UK grid
+    coordinates(temp.points) = c("easting", "northing")
+    #proj4string(temp.points) = CRS("+init=epsg:27700")
+    proj4string(coordPanel) = CRS("+init=epsg:26917") # Sponsler: our CRS is UTM 17N (EPSG:26917)
+    
+    # create a new raster with the temp.rast extent and sample the points on the raster / final sample size
+    # e.g. probability that a dance has been on a certain raster square
+    #temp.rast.UKGRID <- rasterize(temp.points, temp.rast, fun = "count", background = 0)/finalSampleSize
+    temp.rast.UTM17N <- rasterize(temp.points, temp.rast, fun = "count", background = 0)/finalSampleSize # Sponsler:
+    
+    # convert the raster to a SpatialGridDataFrame
+    #g <- as(temp.rast.UKGRID, 'SpatialGridDataFrame')
+    g <- as(temp.rast.UTM17N, 'SpatialGridDataFrame') # Sponsler:
+    
+    # save the file to disk (can be imported into GIS)
+    currentFileName <- paste("data/raster_", tempData$id, ".asc", sep = "")
+    write.asciigrid(g, currentFileName)
+    
+    if(i <= 1){ # on the first pass create a new file, else add the data to the existing file
+      #total.temp.rast <- temp.rast.UKGRID
+      total.temp.rast <- temp.rast.UTM17N # Sponsler:
+    }else{
+      # calculate the probability that a field has been visited
+      #total.temp.rast <- 1 - (1 - total.temp.rast)*(1 - temp.rast.UKGRID)
+      total.temp.rast <- 1 - (1 - total.temp.rast)*(1 - temp.rast.UTM17N)
+    }
   }
-
-  # georeference the points on the UK grid
-  coordinates(temp.points) = c("easting", "northing")
-  #proj4string(temp.points) = CRS("+init=epsg:27700")
-  proj4string(coordPanel) = CRS("+init=epsg:26917") # Sponsler: our CRS is UTM 17N (EPSG:26917)
-
-  # create a new raster with the temp.rast extent and sample the points on the raster / final sample size
-  # e.g. probability that a dance has been on a certain raster square
-  #temp.rast.UKGRID <- rasterize(temp.points, temp.rast, fun = "count", background = 0)/finalSampleSize
-  temp.rast.UTM17N <- rasterize(temp.points, temp.rast, fun = "count", background = 0)/finalSampleSize # Sponsler:
-
-  # convert the raster to a SpatialGridDataFrame
-  #g <- as(temp.rast.UKGRID, 'SpatialGridDataFrame')
-  g <- as(temp.rast.UTM17N, 'SpatialGridDataFrame') # Sponsler:
-
-  # save the file to disk (can be imported into GIS)
-  currentFileName <- paste("data/raster_", tempData$id, ".asc", sep = "")
-  write.asciigrid(g, currentFileName)
-
-  if(i <= 1){ # on the first pass create a new file, else add the data to the existing file
-    #total.temp.rast <- temp.rast.UKGRID
-    total.temp.rast <- temp.rast.UTM17N # Sponsler:
-  }else{
-    # calculate the probability that a field has been visited
-    #total.temp.rast <- 1 - (1 - total.temp.rast)*(1 - temp.rast.UKGRID)
-    total.temp.rast <- 1 - (1 - total.temp.rast)*(1 - temp.rast.UTM17N)
-  }
+  
+  # save the combined dances as one raster file ready to be imported in ArcGIS
+  total.temp.rast <- total.temp.rast$id
+  g.total <- as(total.temp.rast, 'SpatialGridDataFrame')
+  write.asciigrid(g.total, "data/totalRaster.asc")
+  
+  
+  # for plotting, we can crop the extent to our needs
+  
+  # prepare an georeferenced extent (in GIS terms) for the cropping
+  coordPanel.crop <- data.frame(cbind(easting = c(hiveEasting, hiveEasting - 10000,
+                                                  hiveEasting + 10000),
+                                      northing = c(hiveNorthing, hiveNorthing - 10000,
+                                                   hiveNorthing + 10000)))
+  coordinates(coordPanel.crop) <- c("easting", "northing")
+  #proj4string(coordPanel.crop) = CRS("+init=epsg:27700")
+  proj4string(coordPanel.crop) = CRS("+init=epsg:26917") # Sponsler:
+  
+  
+  # prepare a raster with the extent to crop the aerial photography
+  numCoordPanel.crop <- as.data.frame(coordPanel.crop)
+  crop.rast <- raster(ncols = noCells, nrows = noCells)
+  extent(crop.rast) <- extent(c(numCoordPanel.crop[2:3,1], numCoordPanel.crop[2:3,2]))
+  #proj4string(crop.rast) = CRS("+init=epsg:27700")
+  proj4string(crop.rast) = CRS("+init=epsg:26917") # Sponsler:
+  
+  # we crop the data raster to size
+  new.data.rast <- crop(total.temp.rast, crop.rast)
+  writeRaster(new.data.rast, filename = paste("data/FSR_Soybean_",j,".tif", sep=""), format = "GTiff", overwrite = T) # Sponsler: this geotiff can be loaded in QGIS to overlay on landscape layer
+  
 }
 
-# save the combined dances as one raster file ready to be imported in ArcGIS
-total.temp.rast <- total.temp.rast$id
-g.total <- as(total.temp.rast, 'SpatialGridDataFrame')
-write.asciigrid(g.total, "data/totalRaster.asc")
-
-
-# for plotting, we can crop the extent to our needs
-
-# prepare an georeferenced extent (in GIS terms) for the cropping
-coordPanel.crop <- data.frame(cbind(easting = c(hiveEasting, hiveEasting - 10000,
-                                 hiveEasting + 10000),
-                               northing = c(hiveNorthing, hiveNorthing - 10000,
-                                 hiveNorthing + 10000)))
-coordinates(coordPanel.crop) <- c("easting", "northing")
-#proj4string(coordPanel.crop) = CRS("+init=epsg:27700")
-proj4string(coordPanel.crop) = CRS("+init=epsg:26917") # Sponsler:
-
-
-# prepare a raster with the extent to crop the aerial photography
-numCoordPanel.crop <- as.data.frame(coordPanel.crop)
-crop.rast <- raster(ncols = noCells, nrows = noCells)
-extent(crop.rast) <- extent(c(numCoordPanel.crop[2:3,1], numCoordPanel.crop[2:3,2]))
-#proj4string(crop.rast) = CRS("+init=epsg:27700")
-proj4string(crop.rast) = CRS("+init=epsg:26917") # Sponsler:
-
-# we crop the data raster to size
-new.data.rast <- crop(total.temp.rast, crop.rast)
-writeRaster(new.data.rast, filename = "data/2017_Class_soybean_dance.tif", format = "GTiff", overwrite = T) # Sponsler: this geotiff can be loaded in QGIS to overlay on landscape layer
-
+#########################################
+#########################################
 
 ### PLOTTING WITHOUT AERIAL PHOTOGRAPHY
 # choose colours of your liking, and symbol size that matched the figure
