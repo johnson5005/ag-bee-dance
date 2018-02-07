@@ -52,6 +52,11 @@ gs_title("2016 Dance Analysis") %>%
   gs_download(ws = "Data", to = waggleFile, overwrite = TRUE)
 waggleData <- read.csv(waggleFile) # Sponsler: path to our dance data
 
+## Remove flagged lines
+waggleData <- subset(waggleData, flag != 1) # Sponsler: a flag field removes empty or incomplete lines
+waggleData <- subset(waggleData, flag != "X")
+waggleData <- subset(waggleData, dance.found. != "no") #Johnson: remove lines for which no dances were recorded
+
 ## Fix dates/times and use them to calculate azimuth
 waggleData$date <- paste(waggleData$year, sprintf("%02d", waggleData$month), sprintf("%02d", waggleData$day), sep="-")
 waggleData$time <- paste(sprintf("%02d", waggleData$hour), sprintf("%02d", waggleData$min), sep=":")
@@ -63,11 +68,6 @@ waggleData$azimuth <- sunAngle(waggleData$dateTime, waggleData$lon, waggleData$l
 waggleData[is.na(waggleData$skew),]$skew <- 0
 waggleData$heading.degrees <- (((waggleData$mean_angle-waggleData$skew+waggleData$azimuth)+90) %% 360) ## Something not concordant with GoogleDoc calculation here
 waggleData$heading.radians <- (waggleData$heading.degrees*pi)/180
-
-## Remove flagged lines
-waggleData <- subset(waggleData, flag != 1) # Sponsler: a flag field removes empty or incomplete lines
-waggleData <- subset(waggleData, flag != "X")
-waggleData <- subset(waggleData, dance.found. != "no") #Johnson: remove lines for which no dances were recorded
 
 ## Designate Bloom vs. Non-Bloom dates
 waggleData$bloom <- FALSE
