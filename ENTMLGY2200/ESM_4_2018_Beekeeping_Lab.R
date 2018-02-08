@@ -41,7 +41,7 @@ library('magrittr')        # Pipes
 
 #setwd("/Users/dougsponsler/Documents/Research/CDRC_dance_analysis") # Sponsler: path to the working directory on my laptop
 # https://docs.google.com/spreadsheets/d/1kUu7DLIM1LaOsXZAV3K6hwke2TilBNdlBG5lYIMpd84/edit#gid=0
-gs_title("2017 Beekeeping Lab Dance Analysis") %>%
+gs_title("2018 Beekeeping Lab Dance Analysis") %>%
   gs_download(ws = "Data", to = "2017_Class_soybean_dance.csv", overwrite = TRUE)
 
 #read the calibration data from ESM_5.csv
