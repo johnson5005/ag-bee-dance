@@ -42,7 +42,7 @@ library('magrittr')        # Pipes
 #setwd("/Users/dougsponsler/Documents/Research/CDRC_dance_analysis") # Sponsler: path to the working directory on my laptop
 # https://docs.google.com/spreadsheets/d/1kUu7DLIM1LaOsXZAV3K6hwke2TilBNdlBG5lYIMpd84/edit#gid=0
 gs_title("2018 Beekeeping Lab Dance Analysis") %>%
-  gs_download(ws = "Data", to = "2017_Class_soybean_dance.csv", overwrite = TRUE)
+  gs_download(ws = "Data", to = "2018_Class_soybean_dance.csv", overwrite = TRUE)
 
 #read the calibration data from ESM_5.csv
 calibDataAgg <- read.csv("ESM_5.csv", row.names = 1)
@@ -68,7 +68,7 @@ calibDataAgg$heading <- circular(calibDataAgg$heading,
 # store the subset of dances going to that feeder in waggleData
 #waggleData <- calibDataAgg[calibDataAgg$dance.id %in% dance.ids,]
 
-waggleData <- read.csv("2017_Class_soybean_dance.csv") # Sponsler: path to our dance data
+waggleData <- read.csv("2018_Class_soybean_dance.csv") # Sponsler: path to our dance data
 waggleData <- subset(waggleData, flag == 1) # Sponsler: a flag field removes empty or incomplete lines
 
 # we only want the first dance of every individual bee, and we prepare a function to achieve that
@@ -252,7 +252,7 @@ proj4string(crop.rast) = CRS("+init=epsg:26917") # Sponsler:
 
 # we crop the data raster to size
 new.data.rast <- crop(total.temp.rast, crop.rast)
-writeRaster(new.data.rast, filename = "data/2017_Class_soybean_dance.tif", format = "GTiff", overwrite = T) # Sponsler: this geotiff can be loaded in QGIS to overlay on landscape layer
+writeRaster(new.data.rast, filename = "data/2018_Class_soybean_dance.tif", format = "GTiff", overwrite = T) # Sponsler: this geotiff can be loaded in QGIS to overlay on landscape layer
 
 
 ### PLOTTING WITHOUT AERIAL PHOTOGRAPHY
