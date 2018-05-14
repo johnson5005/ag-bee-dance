@@ -150,14 +150,17 @@ bee <- factor(calibDataAggBees$bee.id)
 ## Process 
 ##################################################
 # loop through all hiveDates
-for (j in unique(waggleData$hiveDate)) {
-  waggleDataDate <- waggleData[waggleData$hiveDate == j,]
+#for (j in unique(waggleData$hiveDate)) {
+#  waggleDataDate <- waggleData[waggleData$hiveDate == j,]
   # loop through all the dances
+
+## All together
+waggleDataDate <- waggleData 
   for(i in 1:length(waggleDataDate$id)){
     cat(paste(i, "of", length(waggleDataDate$id), "\n"))
     # choose only the i^th dance
     tempData <- waggleDataDate[i,]
-    
+
     # prepare the variables for the prediction model
     N2 <- length(tempData$mean_duration.sec)
     x2 <- rep(NA, length(tempData$mean_duration.sec))
@@ -260,9 +263,9 @@ for (j in unique(waggleData$hiveDate)) {
   
   # we crop the data raster to size
   new.data.rast <- crop(total.temp.rast, crop.rast)
-  writeRaster(new.data.rast, filename = paste("data/FSR_Soybean_",j,".tif", sep=""), format = "GTiff", overwrite = T) # Sponsler: this geotiff can be loaded in QGIS to overlay on landscape layer
-  
-}
+#  writeRaster(new.data.rast, filename = paste("data/FSR_Soybean_",j,".tif", sep=""), format = "GTiff", overwrite = T) # Sponsler: this geotiff can be loaded in QGIS to overlay on landscape layer
+  writeRaster(new.data.rast, filename = paste("data/FSR_Soybean_all",j,".tif", sep=""), format = "GTiff", overwrite = T) # Sponsler: this geotiff can be loaded in QGIS to overlay on landscape layer  
+#} # End of by day
 
 #########################################
 #########################################
