@@ -165,8 +165,10 @@ waggleDataDate
 ##########################
 ## Process by date and color for collected bees
 ############################
-waggleCollected <- waggleData[waggleData$color != "",]
-waggleCollected$dateColor <- paste(waggleCollected$date, waggleCollected$color,sep=".")
+#waggleCollected <- waggleData[waggleData$color != "",]
+#waggleCollected$dateColor <- paste(waggleCollected$date, waggleCollected$color,sep=".")
+waggleCollected <- waggleData
+waggleCollected$dateColor <- paste(waggleCollected$date)
 
 # loop through all dateColors
 for (j in unique(waggleCollected$dateColor)) {
