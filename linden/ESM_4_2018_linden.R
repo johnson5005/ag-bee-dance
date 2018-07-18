@@ -254,9 +254,9 @@ for (j in unique(waggleCollected$dateColor)) {
   }
   
   # save the combined dances as one raster file ready to be imported in ArcGIS
-  total.temp.rast <- total.temp.rast$id
-  g.total <- as(total.temp.rast, 'SpatialGridDataFrame')
-  write.asciigrid(g.total, "data/totalRaster.asc")
+#  total.temp.rast <- total.temp.rast$id
+#  g.total <- as(total.temp.rast, 'SpatialGridDataFrame')
+#  write.asciigrid(g.total, "data/totalRaster.asc")
   
   
   # for plotting, we can crop the extent to our needs
@@ -280,8 +280,8 @@ for (j in unique(waggleCollected$dateColor)) {
   
   # we crop the data raster to size
   new.data.rast <- crop(total.temp.rast, crop.rast)
-  writeRaster(new.data.rast, filename = paste("data/FSR_Soybean_",j,".tif", sep=""), format = "GTiff", overwrite = T) # Sponsler: this geotiff can be loaded in QGIS to overlay on landscape layer
-#  writeRaster(new.data.rast, filename = paste("data/Wooster_Linden",datePick,".tif", sep=""), format = "GTiff", overwrite = T) # Sponsler: this geotiff can be loaded in QGIS to overlay on landscape layer  
+  writeRaster(new.data.rast, filename = paste("data/Wooster_Linden_",j,".tif", sep=""), format = "GTiff", overwrite = T) # Sponsler: this geotiff can be loaded in QGIS to overlay on landscape layer
+#  writeRaster(new.data.rast, filename = paste("data/Wooster_Linden_",datePick,".tif", sep=""), format = "GTiff", overwrite = T) # Sponsler: this geotiff can be loaded in QGIS to overlay on landscape layer  
 } # End of by day
 
 #########################################
