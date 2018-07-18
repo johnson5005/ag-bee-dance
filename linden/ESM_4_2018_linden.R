@@ -150,13 +150,11 @@ bee <- factor(calibDataAggBees$bee.id)
 #############################################
 ## Process 
 ##################################################
-# loop through all hiveDates
-#for (j in unique(waggleData$hiveDate)) {
-#  waggleDataDate <- waggleData[waggleData$hiveDate == j,]
-  # loop through all the dances
-
 ## All together
 
+###########################
+## Process by date
+###########################
 #datePick <- "2018-06-25"
 #datePick <- "2018-06-28"
 datePick <- "2018-07-12"
@@ -164,46 +162,16 @@ datePick <- "2018-07-12"
 waggleDataDate <- subset(waggleData, date == datePick)
 waggleDataDate 
 
-  for(i in 1:length(waggleDataDate$dancer.id)){
-    cat(paste(i, "of", length(waggleDataDate$dancer.id), "\n"))
-    # choose only the i^th dance
-    tempData <- waggleDataDate[i,]
+##########################
+## Process by date and color for collected bees
+############################
+waggleCollected <- waggleData[waggleData$color != "",]
+waggleCollected$dateColor <- paste(waggleCollected$date, waggleCollected$color,sep=".")
 
-    # prepare the variables for the prediction model
-    N2 <- length(tempData$mean_duration.sec)
-    x2 <- rep(NA, length(tempData$mean_duration.sec))
-    y2 <- tempData$mean_duration.sec
-    
-    # load the model from file and submit the data
-    jags <- jags.model('ESM_3.jag',
-                       data = list('x' = x, 'y' = y,
-                                   'N1' = N1, 'K' = K, 'bee' = bee, 'N2' = N2, 'x2' = x2, 'y2' = y2),
-                       n.chains = 1,
-                       n.adapt = 100)
-    
-    # update for the burn-in
-    update(jags, 100000)
-    
-    # sample from the posterior
-    samples <- coda.samples(jags, c('x2'), noJagsSamples, thin = thinning)
-    
-    # save the samples in a handy variable
-    sim.distances <-  samples[,'x2'][[1]]
-    
-    # the 1000 draws have to be taken according to what is in the posterior samples for distance
-    sim.heading <- rvonmises(finalSampleSize, mu = tempData$heading,
-                             kappa = 24.9, control.circular = list("radians"))
-    
-    # calculate the coordinates from the vector with origin of the hives
-    rel.dance.easting <- as.numeric(hiveEasting + cos(-(sim.heading- pi/2))*sim.distances)
-    rel.dance.northing <- as.numeric(hiveNorthing + sin(-(sim.heading - pi/2))*sim.distances)
-    
-    # save as points for further use
-    temp.points <- data.frame(cbind(id = rep(tempData$id, length(rel.dance.easting)),
-datePick <- "2018-07-12"
-
-waggleDataDate <- subset(waggleData, date == datePick)
-waggleDataDate 
+# loop through all dateColors
+for (j in unique(waggleCollected$dateColor)) {
+  waggleDataDate <- waggleCollected[waggleCollected$dateColor == j,]
+  # loop through all the dances
 
   for(i in 1:length(waggleDataDate$dancer.id)){
     cat(paste(i, "of", length(waggleDataDate$dancer.id), "\n"))
@@ -312,9 +280,9 @@ waggleDataDate
   
   # we crop the data raster to size
   new.data.rast <- crop(total.temp.rast, crop.rast)
-#  writeRaster(new.data.rast, filename = paste("data/FSR_Soybean_",j,".tif", sep=""), format = "GTiff", overwrite = T) # Sponsler: this geotiff can be loaded in QGIS to overlay on landscape layer
-  writeRaster(new.data.rast, filename = paste("data/Wooster_Linden",datePick,".tif", sep=""), format = "GTiff", overwrite = T) # Sponsler: this geotiff can be loaded in QGIS to overlay on landscape layer  
-#} # End of by day
+  writeRaster(new.data.rast, filename = paste("data/FSR_Soybean_",j,".tif", sep=""), format = "GTiff", overwrite = T) # Sponsler: this geotiff can be loaded in QGIS to overlay on landscape layer
+#  writeRaster(new.data.rast, filename = paste("data/Wooster_Linden",datePick,".tif", sep=""), format = "GTiff", overwrite = T) # Sponsler: this geotiff can be loaded in QGIS to overlay on landscape layer  
+} # End of by day
 
 #########################################
 #########################################
