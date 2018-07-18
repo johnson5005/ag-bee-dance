@@ -158,8 +158,49 @@ bee <- factor(calibDataAggBees$bee.id)
 ## All together
 
 #datePick <- "2018-06-25"
-datePick <- "2018-06-28"
-#datePick <- "2018-07-12"
+#datePick <- "2018-06-28"
+datePick <- "2018-07-12"
+
+waggleDataDate <- subset(waggleData, date == datePick)
+waggleDataDate 
+
+  for(i in 1:length(waggleDataDate$dancer.id)){
+    cat(paste(i, "of", length(waggleDataDate$dancer.id), "\n"))
+    # choose only the i^th dance
+    tempData <- waggleDataDate[i,]
+
+    # prepare the variables for the prediction model
+    N2 <- length(tempData$mean_duration.sec)
+    x2 <- rep(NA, length(tempData$mean_duration.sec))
+    y2 <- tempData$mean_duration.sec
+    
+    # load the model from file and submit the data
+    jags <- jags.model('ESM_3.jag',
+                       data = list('x' = x, 'y' = y,
+                                   'N1' = N1, 'K' = K, 'bee' = bee, 'N2' = N2, 'x2' = x2, 'y2' = y2),
+                       n.chains = 1,
+                       n.adapt = 100)
+    
+    # update for the burn-in
+    update(jags, 100000)
+    
+    # sample from the posterior
+    samples <- coda.samples(jags, c('x2'), noJagsSamples, thin = thinning)
+    
+    # save the samples in a handy variable
+    sim.distances <-  samples[,'x2'][[1]]
+    
+    # the 1000 draws have to be taken according to what is in the posterior samples for distance
+    sim.heading <- rvonmises(finalSampleSize, mu = tempData$heading,
+                             kappa = 24.9, control.circular = list("radians"))
+    
+    # calculate the coordinates from the vector with origin of the hives
+    rel.dance.easting <- as.numeric(hiveEasting + cos(-(sim.heading- pi/2))*sim.distances)
+    rel.dance.northing <- as.numeric(hiveNorthing + sin(-(sim.heading - pi/2))*sim.distances)
+    
+    # save as points for further use
+    temp.points <- data.frame(cbind(id = rep(tempData$id, length(rel.dance.easting)),
+datePick <- "2018-07-12"
 
 waggleDataDate <- subset(waggleData, date == datePick)
 waggleDataDate 
