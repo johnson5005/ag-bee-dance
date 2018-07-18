@@ -51,8 +51,8 @@ dir.create("data", showWarnings = FALSE)
 waggleFile <- "2018 Linden Dance Analysis - Data.csv" # Set the name for the file to use
 ## Download data from GoogleSheets using 'googlesheets' library.  Store as csv file specified in "wagglefile"
 # "2018 Linden Dance Analysis" https://docs.google.com/spreadsheets/d/1qPxYVzZ7v98dxrIh35ThAQSoXZD40x00TVs8d8UIRpE/edit#gid=0
-#gs_title("2018 Linden Dance Analysis") %>%
-#  gs_download(ws = "Data", to = waggleFile, overwrite = TRUE)
+gs_title("2018 Linden Dance Analysis") %>%
+  gs_download(ws = "Data", to = waggleFile, overwrite = TRUE)
 waggleData <- read.csv(waggleFile) # Sponsler: path to our dance data
 
 ## Remove flagged lines
@@ -156,7 +156,14 @@ bee <- factor(calibDataAggBees$bee.id)
   # loop through all the dances
 
 ## All together
-waggleDataDate <- subset(waggleData, date == "2018-06-28")
+
+#datePick <- "2018-06-25"
+datePick <- "2018-06-28"
+#datePick <- "2018-07-12"
+
+waggleDataDate <- subset(waggleData, date == datePick)
+waggleDataDate 
+
   for(i in 1:length(waggleDataDate$dancer.id)){
     cat(paste(i, "of", length(waggleDataDate$dancer.id), "\n"))
     # choose only the i^th dance
@@ -265,7 +272,7 @@ waggleDataDate <- subset(waggleData, date == "2018-06-28")
   # we crop the data raster to size
   new.data.rast <- crop(total.temp.rast, crop.rast)
 #  writeRaster(new.data.rast, filename = paste("data/FSR_Soybean_",j,".tif", sep=""), format = "GTiff", overwrite = T) # Sponsler: this geotiff can be loaded in QGIS to overlay on landscape layer
-  writeRaster(new.data.rast, filename = paste("data/FSR_Soybean_all",j,".tif", sep=""), format = "GTiff", overwrite = T) # Sponsler: this geotiff can be loaded in QGIS to overlay on landscape layer  
+  writeRaster(new.data.rast, filename = paste("data/Wooster_Linden",datePick,".tif", sep=""), format = "GTiff", overwrite = T) # Sponsler: this geotiff can be loaded in QGIS to overlay on landscape layer  
 #} # End of by day
 
 #########################################
