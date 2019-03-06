@@ -27,8 +27,13 @@
 # you must create a "data" folder within the folder from which you are running the scripts
 # or adapt the paths for the instructions below
 
-# loading packages needed in this script
+# Load Ubuntu packages
+# sudo apt install jags r-cran-rgdal r-recommended 
+# Load CRAN packages needed in this script
 # install.packages(c("circular", "rjags", "sp", "rgdal", "raster", "png", "googlesheets", "magrittr", "oce"))
+
+## Clear everything
+rm(list=ls())
 library('circular')	# for circular stats
 library('rjags')	# interface with JAGS
 library('sp')		# spatial stats, coordinates etc
@@ -38,9 +43,6 @@ library('png')          # to save figures to jpeg
 library('googlesheets')  # Read from GoogleDocs
 library('magrittr')        # Pipes
 library('oce')  # Calculation of azimuth
-
-## Clear everything
-rm(list=ls())
 
 ## Set local working directory (uncomment and change)
 setwd("./linden") # Sponsler: path to the working directory within the Git repository
