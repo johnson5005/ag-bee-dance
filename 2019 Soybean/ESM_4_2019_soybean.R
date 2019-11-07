@@ -28,6 +28,7 @@
 # or adapt the paths for the instructions below
 
 # Load Ubuntu packages
+# Add repos for cran and qgis: sudo add-apt-repository ppa:ubuntugis/ppa
 # sudo apt install jags r-cran-rgdal r-recommended 
 # Load CRAN packages needed in this script
 # install.packages(c("circular", "rjags", "sp", "rgdal", "raster", "png", "googlesheets4", "magrittr", "oce"))
@@ -53,24 +54,19 @@ dir.create("data", showWarnings = FALSE)
 ## Import dance data file
 ## Download Data from Google Docs
 sheets_deauth() ## Prevents google authorization; Needed for remote session (but keys must be used and sheets must be shared to anyone)
-myData <- read_sheet(
+waggleData <- read_sheet(
   "1Jk4eCDEfjXjj6p0eyA2b6Rh72omFnobzc4-Ala2tuLA", # https://docs.google.com/spreadsheets/d/1Jk4eCDEfjXjj6p0eyA2b6Rh72omFnobzc4-Ala2tuLA/edit?usp=sharing
   sheet = "Data", 
   col_names=TRUE, 
-  col_types = "c" # Import all columns as 'character'
+#  col_types = "c" # Import all columns as 'character'
 )
-
-## Old googlesheets code
-#gs_title("2019 Beekeeping Lab Dance Analysis") %>%
-#  gs_download(ws = "Data", to = "2019_Class_linden_dance.csv", overwrite = TRUE)
-
 
 #waggleFile <- "2018 Linden Dance Analysis - Data.csv" # Set the name for the file to use
 ## Download data from GoogleSheets using 'googlesheets' library.  Store as csv file specified in "wagglefile"
 # "2018 Linden Dance Analysis" https://docs.google.com/spreadsheets/d/1qPxYVzZ7v98dxrIh35ThAQSoXZD40x00TVs8d8UIRpE/edit#gid=0
 #gs_title("2018 Linden Dance Analysis") %>%
 #  gs_download(ws = "Data", to = waggleFile, overwrite = TRUE)
-waggleData <- read.csv("2019_Class_linden_dance.csv") # Sponsler: path to our dance data
+#waggleData <- read.csv("2019_Class_linden_dance.csv") # Sponsler: path to our dance data
 
 ## Remove flagged lines
 waggleData <- subset(waggleData, is.na(waggleData$flag)) # Sponsler: a flag field removes empty or incomplete lines
@@ -124,9 +120,9 @@ noJagsSamples <- thinning*finalSampleSize
 
 ## preparations to calculate point coords from angle and distance (get from https://epsg.io/)
 #hiveEasting <- 534939				# the UK grid easting of the hives in meters
-hiveEasting <- 422363.59 # Sponsler: the UTM 17N (EPSG:26917) easting of the hives in meters
+hiveEasting <- 430263.51 # Sponsler: the UTM 17N (EPSG:26917) easting of the hives in meters
 #hiveNorthing <- 108900				# the UK grid northing of the hives in meters
-hiveNorthing <- 4514220.26 # Sponsler: the UTM 17N (EPSG:26917) northing of the hives in meters
+hiveNorthing <- 4513732.97 # Sponsler: the UTM 17N (EPSG:26917) northing of the hives in meters
 
 ## to calculate the rasters
 distanceToHives <- 10000			# how far should the rasters extend from the hives in meters
