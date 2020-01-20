@@ -35,7 +35,7 @@ library('sp')		# spatial stats, coordinates etc
 library('rgdal')	# convert between different coodrinate systems, spTransform
 library('raster')       # for plotting spatial data
 library('png')          # to save figures to jpeg
-library('googlesheets')  # Read from GoogleDocs
+library('googlesheets4') ## Read from GoogleDocs https://googlesheets4.tidyverse.org/
 library('magrittr')        # Pipes
 library('oce')  # Calculation of azimuth
 
@@ -44,13 +44,12 @@ setwd("./soybean") # Sponsler: path to the working directory within the Git repo
 ## Create data subfolder if it doesn't already exist
 dir.create("data", showWarnings = FALSE)
 
-## Import dance data file
-waggleFile <- "2016_soybean_dance.csv" # Set the name for the file to use
-## Download data from GoogleSheets using 'googlesheets' library.  Store as csv file specified in "wagglefile"
-# "2016 Dance Analysis" https://docs.google.com/spreadsheets/d/1buVX4jrnn0UO6EMBiQxe7aVXboJ2Ey_keCR5TsC55ck/edit#gid=0
-gs_title("2016 Dance Analysis") %>%
-  gs_download(ws = "Data", to = waggleFile, overwrite = TRUE)
-waggleData <- read.csv(waggleFile) # Sponsler: path to our dance data
+## Get data from Google Docs and write in CSV file
+sheets_deauth() ## Prevents google authorization; Needed for remote session (but keys must be used and sheets must be shared to anyone)
+## Download data from all worksheets in google doc sheet
+googleSheetsKey <- "1buVX4jrnn0UO6EMBiQxe7aVXboJ2Ey_keCR5TsC55ck" #https://docs.google.com/spreadsheets/d/1buVX4jrnn0UO6EMBiQxe7aVXboJ2Ey_keCR5TsC55ck/edit#gid=0
+waggleData_ss <- sheets_get(googleSheetsKey)
+waggleData <- as.data.frame(read_sheet(googleSheetsKey, sheet = "Data"))
 
 ## Remove flagged lines
 waggleData <- subset(waggleData, flag != 1) # Sponsler: a flag field removes empty or incomplete lines
