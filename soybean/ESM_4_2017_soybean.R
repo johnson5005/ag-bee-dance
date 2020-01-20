@@ -51,10 +51,8 @@ googleSheetsKey <- "1buVX4jrnn0UO6EMBiQxe7aVXboJ2Ey_keCR5TsC55ck" #https://docs.
 waggleData_ss <- sheets_get(googleSheetsKey)
 waggleData <- as.data.frame(read_sheet(googleSheetsKey, sheet = "Data"))
 
-## Remove flagged lines
-waggleData <- subset(waggleData, flag != 1) # Sponsler: a flag field removes empty or incomplete lines
-waggleData <- subset(waggleData, flag != "X")
-waggleData <- subset(waggleData, dance.found. != "no") #Johnson: remove lines for which no dances were recorded
+## Include only flagged lines
+waggleData <- subset(waggleData, flag == 1) # Johnson: Good dance lines have a "1" in the flag column
 
 ## Fix dates/times and use them to calculate azimuth
 waggleData$date <- paste(waggleData$year, sprintf("%02d", waggleData$month), sprintf("%02d", waggleData$day), sep="-")
@@ -148,7 +146,7 @@ bee <- factor(calibDataAggBees$bee.id)
 #############################################
 ## Process 
 ##################################################
-# loop through all hiveDates
+# loop through all Dates
 #for (j in unique(waggleData$hiveDate)) {
 #  waggleDataDate <- waggleData[waggleData$hiveDate == j,]
   # loop through all the dances
