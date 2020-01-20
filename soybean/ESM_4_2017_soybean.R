@@ -234,7 +234,7 @@ for (j in unique(waggleData$date)) {
   }
   
   # save the combined dances as one raster file ready to be imported in ArcGIS
-  total.temp.rast <- total.temp.rast$id
+#  total.temp.rast <- total.temp.rast$id
   g.total <- as(total.temp.rast, 'SpatialGridDataFrame')
   write.asciigrid(g.total, "data/totalRaster.asc")
   
