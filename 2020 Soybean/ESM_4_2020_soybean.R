@@ -27,9 +27,10 @@
 # you must create a "data" folder within the folder from which you are running the scripts
 # or adapt the paths for the instructions below
 
-# Load Ubuntu packages
-# Add repos for cran and qgis: sudo add-apt-repository ppa:ubuntugis/ppa
-# sudo apt install jags r-cran-rgdal r-recommended 
+###
+### Prepare the Ubuntu/R installation
+# Load Ubuntu (21.10) packages needed for R packages and visualization
+# sudo apt install jags r-cran-rgdal r-recommended libgdal-dev qgis
 # Load CRAN packages needed in this script
 # install.packages(c("circular", "rjags", "sp", "rgdal", "raster", "png", "googlesheets4", "magrittr", "oce"))
 
