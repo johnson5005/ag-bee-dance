@@ -112,10 +112,14 @@ thinning <- 100
 noJagsSamples <- thinning*finalSampleSize
 
 ## preparations to calculate point coords from angle and distance (get from https://epsg.io/)
+# Aquaculture
+hiveEasting <- 427890.93 # Sponsler: the UTM 17N (EPSG:26917) easting of the hives in meters
+hiveNorthing <- 4513403.77 # Sponsler: the UTM 17N (EPSG:26917) northing of the hives in meters
+
 #hiveEasting <- 534939				# the UK grid easting of the hives in meters
-hiveEasting <- 430263.51 # Sponsler: the UTM 17N (EPSG:26917) easting of the hives in meters
+#hiveEasting <- 430263.51 # Sponsler: the UTM 17N (EPSG:26917) easting of the hives in meters
 #hiveNorthing <- 108900				# the UK grid northing of the hives in meters
-hiveNorthing <- 4513732.97 # Sponsler: the UTM 17N (EPSG:26917) northing of the hives in meters
+#hiveNorthing <- 4513732.97 # Sponsler: the UTM 17N (EPSG:26917) northing of the hives in meters
 
 ## to calculate the rasters
 distanceToHives <- 10000			# how far should the rasters extend from the hives in meters
@@ -261,7 +265,7 @@ proj4string(crop.rast) = CRS("+init=epsg:26917") # Sponsler:
 
 # we crop the data raster to size
 new.data.rast <- crop(total.temp.rast, crop.rast)
-writeRaster(new.data.rast, filename = "data/2019_soybean_dance.tif", format = "GTiff", overwrite = T) # Sponsler: this geotiff can be loaded in QGIS to overlay on landscape layer
+writeRaster(new.data.rast, filename = "data/2020_soybean_dance.tif", format = "GTiff", overwrite = T) # Sponsler: this geotiff can be loaded in QGIS to overlay on landscape layer
 
 
 ### PLOTTING WITHOUT AERIAL PHOTOGRAPHY
