@@ -81,7 +81,7 @@ waggleData$heading.radians <- (waggleData$heading.degrees*pi)/180
 #waggleData[waggleData$dateTime >= "2016-06-27" & waggleData$dateTime <= "2016-08-04",]$bloom <- TRUE
 
 ## Get summary of dances recorded by hive and by date
-table(waggleData[,c("hive", "date")])
+table(waggleData[,c("date")])
 
 ## Synthetic variable with hive and date
 #waggleData$hiveDate <- paste(waggleData$hive, waggleData$date, sep=".")
@@ -112,14 +112,12 @@ thinning <- 100
 noJagsSamples <- thinning*finalSampleSize
 
 ## preparations to calculate point coords from angle and distance (get from https://epsg.io/)
+# College of Wooster garden shed: 40.807798, -81.936887 (GoogleMaps)
+hiveEasting <- 420977.32 # Sponsler: the UTM 17N (EPSG:26917) easting of the hives in meters
+hiveNorthing <- 4517843.62 # Sponsler: the UTM 17N (EPSG:26917) northing of the hives in meters
 # Aquaculture
-hiveEasting <- 427890.93 # Sponsler: the UTM 17N (EPSG:26917) easting of the hives in meters
-hiveNorthing <- 4513403.77 # Sponsler: the UTM 17N (EPSG:26917) northing of the hives in meters
-
-#hiveEasting <- 534939				# the UK grid easting of the hives in meters
-#hiveEasting <- 430263.51 # Sponsler: the UTM 17N (EPSG:26917) easting of the hives in meters
-#hiveNorthing <- 108900				# the UK grid northing of the hives in meters
-#hiveNorthing <- 4513732.97 # Sponsler: the UTM 17N (EPSG:26917) northing of the hives in meters
+#hiveEasting <- 427890.93 # Sponsler: the UTM 17N (EPSG:26917) easting of the hives in meters
+#hiveNorthing <- 4513403.77 # Sponsler: the UTM 17N (EPSG:26917) northing of the hives in meters
 
 ## to calculate the rasters
 distanceToHives <- 10000			# how far should the rasters extend from the hives in meters
@@ -156,6 +154,15 @@ y <- calibDataAggBees$duration
 
 K <- length(unique(calibDataAggBees$bee.id))
 bee <- factor(calibDataAggBees$bee.id)
+
+# Set the date to analyze
+allWaggleData <- waggleData # Stash full dance data set
+#dateAnalyze <- "2022-08-24"
+#dateAnalyze <- "2022-08-31"
+#dateAnalyze <- "2022-08-27"
+dateAnalyze <- "2022-09-07"
+
+waggleData <- subset(allWaggleData, date == dateAnalyze) # Subset the date chosen
 
 # loop through all the dances
 for(i in 1:length(waggleData$dancer.id)){
@@ -239,9 +246,9 @@ for(i in 1:length(waggleData$dancer.id)){
 }
 
 # save the combined dances as one raster file ready to be imported in ArcGIS
-total.temp.rast <- total.temp.rast$dance.id
-g.total <- as(total.temp.rast, 'SpatialGridDataFrame')
-write.asciigrid(g.total, "data/totalRaster.asc")
+#total.temp.rast <- total.temp.rast$dance.id
+#g.total <- as(total.temp.rast, 'SpatialGridDataFrame')
+#write.asciigrid(g.total, "data/totalRaster.asc")
 
 
 # for plotting, we can crop the extent to our needs
@@ -265,7 +272,8 @@ proj4string(crop.rast) = CRS("+init=epsg:26917") # Sponsler:
 
 # we crop the data raster to size
 new.data.rast <- crop(total.temp.rast, crop.rast)
-writeRaster(new.data.rast, filename = "data/2020_soybean_dance.tif", format = "GTiff", overwrite = T) # Sponsler: this geotiff can be loaded in QGIS to overlay on landscape layer
+#writeRaster(new.data.rast, filename = "data/2022_Wooster_dance.tif", format = "GTiff", overwrite = T) # Sponsler: this geotiff can be loaded in QGIS to overlay on landscape layer
+writeRaster(new.data.rast, filename = paste("data/2022_Wooster_", dateAnalyze, "_dance.tif", sep=""), format = "GTiff", overwrite = T) # Sponsler: this geotiff can be loaded in QGIS to overlay on landscape layer
 
 
 ### PLOTTING WITHOUT AERIAL PHOTOGRAPHY
