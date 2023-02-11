@@ -54,7 +54,8 @@ dir.create("data", showWarnings = FALSE)
 gs4_deauth() ## Prevents google authorization; Needed for remote session (but keys must be used and sheets must be shared to anyone)
 waggleData <- read_sheet(
   "1kUu7DLIM1LaOsXZAV3K6hwke2TilBNdlBG5lYIMpd84", # https://docs.google.com/spreadsheets/d/1kUu7DLIM1LaOsXZAV3K6hwke2TilBNdlBG5lYIMpd84/edit#gid=529956067
-  sheet = "3:55 Lab 2023", 
+  #sheet = "3:55 Lab 2023", 
+  sheet = "1:50 Lab 2023", 
   col_names=TRUE, 
   #  col_types = "c" # Import all columns as 'character'
 )
@@ -118,8 +119,19 @@ thinning <- 100
 noJagsSamples <- thinning*finalSampleSize
 
 ## preparations to calculate point coords from angle and distance (get from https://epsg.io/)
-hiveEasting <- 427890.93 # Sponsler: the UTM 17N (EPSG:26917) easting of the hives in meters
-hiveNorthing <- 4513403.77 # Sponsler: the UTM 17N (EPSG:26917) northing of the hives in meters
+# ATI Equestrian Facility
+hiveEasting <- 428594.553911 # Sponsler: the UTM 17N (EPSG:26917) easting of the hives in meters
+hiveNorthing <- 4512337.718861 # Sponsler: the UTM 17N (EPSG:26917) northing of the hives in meters
+# Wooster Bee Lab
+#hiveEasting <- 422363.59 # Sponsler: the UTM 17N (EPSG:26917) easting of the hives in meters
+#hiveNorthing <- 4514220.26 # Sponsler: the UTM 17N (EPSG:26917) northing of the hives in meters
+## Aquaculture
+#hiveEasting <- 427890.93 # Sponsler: the UTM 17N (EPSG:26917) easting of the hives in meters
+#hiveNorthing <- 4513403.77 # Sponsler: the UTM 17N (EPSG:26917) northing of the hives in meters
+# College of Wooster garden shed: 40.807798, -81.936887 (GoogleMaps)
+#hiveEasting <- 420977.32 # Sponsler: the UTM 17N (EPSG:26917) easting of the hives in meters
+#hiveNorthing <- 4517843.62 # Sponsler: the UTM 17N (EPSG:26917) northing of the hives in meters
+
 
 ## to calculate the rasters
 distanceToHives <- 10000			# how far should the rasters extend from the hives in meters
@@ -240,7 +252,7 @@ for(i in 1:length(waggleData$dancer.id)){
 
 
 # save the combined dances as one raster file ready to be imported in ArcGIS
-total.temp.rast <- total.temp.rast$dance.id
+#total.temp.rast <- total.temp.rast$dance.id
 g.total <- as(total.temp.rast, 'SpatialGridDataFrame')
 write.asciigrid(g.total, "data/totalRaster.asc")
 
@@ -266,7 +278,8 @@ proj4string(crop.rast) = CRS("+init=epsg:26917") # Sponsler:
 
 # we crop the data raster to size
 new.data.rast <- crop(total.temp.rast, crop.rast)
-writeRaster(new.data.rast, filename = "data/2023_soybean_dance.tif", format = "GTiff", overwrite = T) # Sponsler: this geotiff can be loaded in QGIS to overlay on landscape layer
+#writeRaster(new.data.rast, filename = "data/2023_soybean_dance_355.tif", format = "GTiff", overwrite = T) # Sponsler: this geotiff can be loaded in QGIS to overlay on landscape layer
+writeRaster(new.data.rast, filename = "data/2023_soybean_dance_150.tif", format = "GTiff", overwrite = T) # Sponsler: this geotiff can be loaded in QGIS to overlay on landscape layer
 
 
 
