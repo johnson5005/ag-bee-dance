@@ -28,9 +28,9 @@
 # or adapt the paths for the instructions below
 
 # Load Ubuntu packages
-# sudo apt install jags r-cran-rgdal r-recommended 
+# # sudo apt install jags r-cran-rgdal r-recommended sudo gdal-bin proj-bin libgdal-dev libproj-dev
 # Load CRAN packages needed in this script
-# install.packages(c("circular", "rjags", "sp", "rgdal", "raster", "png", "googlesheets", "magrittr", "oce"))
+# install.packages(c("circular", "rjags", "sp", "rgdal", "raster", "png", "googlesheets4", "magrittr", "oce"))
 
 ## Clear everything
 rm(list=ls())
@@ -54,8 +54,9 @@ dir.create("data", showWarnings = FALSE)
 gs4_deauth() ## Prevents google authorization; Needed for remote session (but keys must be used and sheets must be shared to anyone)
 waggleData <- read_sheet(
   "1kUu7DLIM1LaOsXZAV3K6hwke2TilBNdlBG5lYIMpd84", # https://docs.google.com/spreadsheets/d/1kUu7DLIM1LaOsXZAV3K6hwke2TilBNdlBG5lYIMpd84/edit#gid=529956067
-  #sheet = "3:55 Lab 2023", 
-  sheet = "1:50 Lab 2023", 
+  #sheet = "3:55 Lab 2024", 
+  #sheet = "1:50 Lab 2024", 
+  sheet = "Wooster Lab 2024",
   col_names=TRUE, 
   #  col_types = "c" # Import all columns as 'character'
 )
@@ -120,14 +121,14 @@ noJagsSamples <- thinning*finalSampleSize
 
 ## preparations to calculate point coords from angle and distance (get from https://epsg.io/)
 # ATI Equestrian Facility
-hiveEasting <- 428594.553911 # Sponsler: the UTM 17N (EPSG:26917) easting of the hives in meters
-hiveNorthing <- 4512337.718861 # Sponsler: the UTM 17N (EPSG:26917) northing of the hives in meters
+#hiveEasting <- 428594.553911 # Sponsler: the UTM 17N (EPSG:26917) easting of the hives in meters
+#hiveNorthing <- 4512337.718861 # Sponsler: the UTM 17N (EPSG:26917) northing of the hives in meters
 # Wooster Bee Lab
 #hiveEasting <- 422363.59 # Sponsler: the UTM 17N (EPSG:26917) easting of the hives in meters
 #hiveNorthing <- 4514220.26 # Sponsler: the UTM 17N (EPSG:26917) northing of the hives in meters
 ## Aquaculture
-#hiveEasting <- 427890.93 # Sponsler: the UTM 17N (EPSG:26917) easting of the hives in meters
-#hiveNorthing <- 4513403.77 # Sponsler: the UTM 17N (EPSG:26917) northing of the hives in meters
+hiveEasting <- 427890.93 # Sponsler: the UTM 17N (EPSG:26917) easting of the hives in meters
+hiveNorthing <- 4513403.77 # Sponsler: the UTM 17N (EPSG:26917) northing of the hives in meters
 # College of Wooster garden shed: 40.807798, -81.936887 (GoogleMaps)
 #hiveEasting <- 420977.32 # Sponsler: the UTM 17N (EPSG:26917) easting of the hives in meters
 #hiveNorthing <- 4517843.62 # Sponsler: the UTM 17N (EPSG:26917) northing of the hives in meters
@@ -278,8 +279,9 @@ proj4string(crop.rast) = CRS("+init=epsg:26917") # Sponsler:
 
 # we crop the data raster to size
 new.data.rast <- crop(total.temp.rast, crop.rast)
-#writeRaster(new.data.rast, filename = "data/2023_soybean_dance_355.tif", format = "GTiff", overwrite = T) # Sponsler: this geotiff can be loaded in QGIS to overlay on landscape layer
-writeRaster(new.data.rast, filename = "data/2023_soybean_dance_150.tif", format = "GTiff", overwrite = T) # Sponsler: this geotiff can be loaded in QGIS to overlay on landscape layer
+#writeRaster(new.data.rast, filename = "data/2024_soybean_dance_355.tif", format = "GTiff", overwrite = T) # Sponsler: this geotiff can be loaded in QGIS to overlay on landscape layer
+#writeRaster(new.data.rast, filename = "data/2024_soybean_dance_150.tif", format = "GTiff", overwrite = T) # Sponsler: this geotiff can be loaded in QGIS to overlay on landscape layer
+writeRaster(new.data.rast, filename = "data/2024_soybean_dance_wooster.tif", format = "GTiff", overwrite = T) # Sponsler: this geotiff can be loaded in QGIS to overlay on landscape layer
 
 
 
