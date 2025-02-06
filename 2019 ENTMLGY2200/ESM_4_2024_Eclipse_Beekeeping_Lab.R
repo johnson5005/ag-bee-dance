@@ -30,7 +30,7 @@
 # Load Ubuntu packages
 # sudo apt install jags r-cran-rgdal r-recommended 
 # Load CRAN packages needed in this script
-# install.packages(c("circular", "rjags", "sp", "rgdal", "raster", "png", "googlesheets", "magrittr", "oce"))
+# install.packages(c("circular", "rjags", "sp", "rgdal", "raster", "png", "googlesheets4", "magrittr", "oce"))
 
 ## Clear everything
 rm(list=ls())
@@ -40,7 +40,7 @@ library('sp')		# spatial stats, coordinates etc
 library('rgdal')	# convert between different coodrinate systems, spTransform
 library('raster')       # for plotting spatial data
 library('png')          # to save figures to jpeg
-library('googlesheets')  # Read from GoogleDocs
+library('googlesheets4')  # Read from GoogleDocs
 library('magrittr')        # Pipes
 library('oce')  # Calculation of azimuth
 
@@ -50,16 +50,23 @@ setwd("./2019\ ENTMLGY2200") # Sponsler: path to the working directory within th
 dir.create("data", showWarnings = FALSE)
 
 ## Import dance data file
-gs_title("2024 Beekeeping Lab Dance Analysis") %>%
-  gs_download(ws = "Data", to = "2024_Class_eclipse_dance.csv", overwrite = TRUE)
-
+## Download Data from Google Docs
+gs4_deauth() ## Prevents google authorization; Needed for remote session (but keys must be used and sheets must be shared to anyone)
+waggleData <- read_sheet(
+  "1kUu7DLIM1LaOsXZAV3K6hwke2TilBNdlBG5lYIMpd84", # https://docs.google.com/spreadsheets/d/1kUu7DLIM1LaOsXZAV3K6hwke2TilBNdlBG5lYIMpd84/edit#gid=529956067
+  #sheet = "3:55 Lab 2025", 
+  sheet = "3_55_Lab_2025", 
+  #sheet = "1_50_Lab_2025",
+  col_names=TRUE, 
+  #  col_types = "c" # Import all columns as 'character'
+)
 
 #waggleFile <- "2018 Linden Dance Analysis - Data.csv" # Set the name for the file to use
 ## Download data from GoogleSheets using 'googlesheets' library.  Store as csv file specified in "wagglefile"
 # "2018 Linden Dance Analysis" https://docs.google.com/spreadsheets/d/1qPxYVzZ7v98dxrIh35ThAQSoXZD40x00TVs8d8UIRpE/edit#gid=0
 #gs_title("2018 Linden Dance Analysis") %>%
 #  gs_download(ws = "Data", to = waggleFile, overwrite = TRUE)
-waggleData <- read.csv("2024_Class_eclipse_dance.csv") # Sponsler: path to our dance data
+#waggleData <- read.csv("2025_Class_eclipse_dance.csv") # Sponsler: path to our dance data
 
 ## Remove flagged lines
 waggleData <- subset(waggleData, is.na(waggleData$flag)) # Sponsler: a flag field removes empty or incomplete lines
@@ -163,7 +170,7 @@ bee <- factor(calibDataAggBees$bee.id)
 ###########################
 #datePick <- "2018-06-25"
 #datePick <- "2018-06-28"
-datePick <- "2018-07-12"
+datePick <- "2024-04-08"
 
 waggleDataDate <- subset(waggleData, date == datePick)
 waggleDataDate 
