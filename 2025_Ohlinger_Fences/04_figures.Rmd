@@ -1,0 +1,262 @@
+---
+title: "Forage cluster analysis"
+author: "Brad Ohlinger"
+date: "05/02/2025"
+---
+
+# MIT License 
+# 
+# Copyright (c) [2025] [Bradley Ohlinger] 
+# 
+# Permission is hereby granted, free of charge, to any person obtaining a copy of 
+# this software and associated documentation files (the "Software"), to deal in the
+# Software without restriction, including without limitation the rights to use, copy,
+# modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
+# and to permit persons to whom the Software is furnished to do so, subject to the
+# following conditions:
+# 
+# The above copyright notice and this permission notice shall be included in all 
+# copies or substantial portions of the Software.
+
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+# FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+# IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+```{R}
+within.fig.df <- read.csv("./csv/within_df.csv")
+btw.fig.df <- read.csv("./csv/btw_df.csv")
+```
+
+```{R}
+dist.fig.df <- rbind(within.fig.df,btw.fig.df)
+dist.fig.df$compare <- c("within", "within", "within", "between", "between", "between")
+dist.fig.df$x <- c(0.375, 1.125, 1.875, 0.125, 0.875, 1.625)
+dist.fig.df$color <- c("white", "white", "white","black", "black", "black")
+```
+
+```{R}
+png(file="./figures/Figure_3.png")
+par(bg = "white", fg = "black", col.axis = "black", col.lab = "black", cex.lab = 1.25, cex.axis = 1.25)
+
+point_offset <- 0
+arrow_length <- 0.1875
+point_size <- 2
+width <- 2.75
+plot(c(0,2), c(0,2500), type = "n",
+     xlab = "Site",
+     ylab = "Inter-dance distance (meters)",
+     axes = FALSE)
+axis(side = 2, at = NULL)
+axis(side = 1, at = c(0.25, 1, 1.75), labels = c("PFRC", "TAREC", "WAREC"))
+box()
+
+for (i in c("within", "between")){ 
+  for (j in c(c("blacksburg", "tidewater", "winchester"))){ 
+
+with(dist.fig.df[dist.fig.df$compare == i & dist.fig.df$site == j,],
+     graphics::arrows(x0 = x,
+            y0 = lwr, y1 = upr,
+            code = 3, angle = 90, length = arrow_length, lwd = width))
+
+graphics:::points(median ~ x, 
+       data = dist.fig.df[dist.fig.df$compare == i & dist.fig.df$site == j,],
+       pch = 21, bg = color, cex = point_size)
+
+  }}
+
+text(0.25, 500, "116 \n (-207 to 438)")
+text(1, 500, "192 \n (-152 to 489)")
+text(1.75, 500, "206 \n (-186 to 581)")
+dev.off()
+```
+
+```{R}
+knn.fig.df <- read.csv("./csv/nn_ratio_ci_df.csv")
+```
+
+```{R}
+knn.fig.df$x <- c(0.25, 1, 1.75)
+```
+
+```{R}
+png(file="./figures/Figure_4.png")
+par(bg = "white", fg = "black", col.axis = "black", col.lab = "black", cex.lab = 1.25, cex.axis = 1.25)
+
+point_offset <- 0
+arrow_length <- 0.1875
+point_size <- 2
+width <- 2.75
+plot(c(0,2), c(0,2), type = "n",
+     xlab = "Site",
+     ylab = "Neighboring Ratio",
+     axes = FALSE)
+axis(side = 2, at = NULL)
+axis(side = 1, at = c(0.25, 1, 1.75), labels = c("PFRC", "TAREC", "WAREC"))
+box()
+
+for (i in c("blacksburg", "tidewater", "winchester")){ 
+
+with(knn.fig.df[knn.fig.df$site == i,],
+     graphics::arrows(x0 = x,
+            y0 = lwr, y1 = upr,
+            code = 3, angle = 90, length = arrow_length, lwd = width))
+
+graphics:::points(median ~ x, 
+       data = knn.fig.df[ knn.fig.df$site == i,],
+       pch = 21, bg = "black",  cex = point_size)
+
+}
+abline(h = 1, lty = 5)
+dev.off()
+```
+
+```{R}
+max.prop.fig.df <- read.csv("./csv/max_prop_ci.csv")
+```
+
+```{R}
+max.prop.fig.df$X <- NULL
+max.prop.fig.df$x <- c(0.33,1,1.67)
+colnames(max.prop.fig.df) <- c( "site", "median", "lwr", "upr", "x")
+
+```
+
+```{R}
+clust.terr.fig.df <- read.csv("./csv/prop_clust_terr_ci.csv")
+```
+
+```{R}
+clust.terr.fig.df$X <- NULL
+clust.terr.fig.df$x <- c(0.33,1,1.67)
+colnames(clust.terr.fig.df) <- c("site", "median", "lwr", "upr", "x")
+```
+
+```{R}
+png(file="./figures/Figure_5.png", width = 600, height = 480 )
+par(bg = "white", fg = "black", col.axis = "black",
+    col.lab = "black", cex.lab = 1.20, cex.axis = 1.20, mfrow = c(1,2))
+
+point_offset <- 0
+arrow_length <- 0.1875
+point_size <- 1.5
+width <- 2.75
+plot(c(0,2), c(0,1), type = "n",
+     xlab = "Site",
+     ylab = "Clustering Value",
+     axes = FALSE)
+axis(side = 2, at = NULL)
+axis(side = 1, at = c(0.33, 1, 1.67), labels = c("PFRC", "TAREC", "WAREC"))
+box()
+
+for (i in c("blacksburg", "tidewater", "winchester")){ 
+
+with(max.prop.fig.df[max.prop.fig.df$site == i,],
+     graphics::arrows(x0 = x,
+            y0 = lwr, y1 = upr,
+            code = 3, angle = 90, length = arrow_length, lwd = width))
+
+graphics:::points(median ~ x, 
+       data = max.prop.fig.df[max.prop.fig.df$site == i,],
+       pch = 21, bg = "black",  cex = point_size)
+
+}
+
+abline(h = 0.5, lty = 5)
+text(0.33, 0.95,"*", cex = 2.5)
+text(1, 0.95,"*", cex = 2.5)
+text(1.67, 0.95,"*", cex = 2.5)
+text(0.0725, 1, "A", cex = 2.5)
+
+point_offset <- 0
+arrow_length <- 0.1875
+point_size <- 1.5
+width <- 2.75
+plot(c(0,2), c(0,1), type = "n",
+     xlab = "Site",
+     ylab = "Proportion Single-Colony Clusters",
+     axes = FALSE)
+axis(side = 2, at = NULL)
+axis(side = 1, at = c(0.33, 1, 1.67), labels = c("PFRC", "TAREC", "WAREC"))
+box()
+
+for (i in c("blacksburg", "tidewater", "winchester")){ 
+
+with(clust.terr.fig.df[clust.terr.fig.df$site == i,],
+     graphics::arrows(x0 = x,
+            y0 = lwr, y1 = upr,
+            code = 3, angle = 90, length = arrow_length, lwd = width))
+
+graphics:::points(median ~ x, 
+       data = clust.terr.fig.df[clust.terr.fig.df$site == i,],
+       pch = 21, bg = "black",  cex = point_size)
+
+}
+
+abline(h = 0.5, lty = 5)
+text(0.33, 0.95,"*", cex = 2.5)
+text(1, 0.95,"*", cex = 2.5)
+text(1.67, 0.95,"*", cex = 2.5)
+text(0.0725, 1, "B", cex = 2.5)
+
+dev.off()
+```
+
+
+```{R}
+size.fig.df <- read.csv("./csv/clust_size_ci.csv")
+size.fig.df$X <- NULL
+colnames(size.fig.df) <- c( "site", "median", "lwr", "upr")
+inter.fig.df <- read.csv("./csv/inter_clust_size_ci.csv")
+inter.fig.df$X <- NULL
+colnames(inter.fig.df) <- c( "site","median", "lwr", "upr")
+```
+
+```{R}
+patch.fig.df <- rbind(size.fig.df,inter.fig.df)
+patch.fig.df$compare <- c("within", "within", "within", "between", "between", "between")
+patch.fig.df$x <- c(0.125,0.875,1.625,0.375,1.125,1.875)
+patch.fig.df$color <- c("black", "black", "black", "white", "white", "white")
+```
+
+```{R}
+png(file="./figures/Figure_6.png")
+par(bg = "white", fg = "black", col.axis = "black", col.lab = "black", cex.lab = 1.25, cex.axis = 1.25)
+
+point_offset <- 0
+arrow_length <- 0.1875
+point_size <- 2
+width <- 2.75
+plot(c(0,2), c(0,2500), type = "n",
+     xlab = "Site",
+     ylab = "Distance (meters)",
+     axes = FALSE)
+axis(side = 2, at = NULL)
+axis(side = 1, at = c(0.25, 1, 1.75), labels = c("PFRC", "TAREC", "WAREC"))
+box()
+
+for (i in c("within", "between")){ 
+  for (j in c(c("blacksburg", "tidewater", "winchester"))){ 
+
+with(patch.fig.df[patch.fig.df$compare == i & patch.fig.df$site == j,],
+     graphics::arrows(x0 = x,
+            y0 = lwr, y1 = upr,
+            code = 3, angle = 90, length = arrow_length, lwd = width))
+
+graphics:::points(median ~ x, 
+       data = patch.fig.df[patch.fig.df$compare == i & patch.fig.df$site == j,],
+       pch = 21, bg = color, cex = point_size)
+
+  }}
+
+text(0.25, 2250,"*", cex = 2.5)
+text(1, 2250,"*", cex = 2.5)
+text(1.75, 2250,"*", cex = 2.5)
+text(0.25, 75, "-561 \n (-931 to -261)")
+text(1, 75, "-1001 \n (-1310 to -737)")
+text(1.75, 75, "-813 \n (-1211 to -454)")
+dev.off()
+```
