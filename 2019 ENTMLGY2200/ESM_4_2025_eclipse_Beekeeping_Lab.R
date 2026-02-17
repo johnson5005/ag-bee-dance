@@ -31,9 +31,9 @@
 # sudo apt install jags r-recommended libgdal-dev libproj-dev libgeos-dev
 # Download last version of rgdal: wget https://cran.r-project.org/src/contrib/Archive/rgdal/rgdal_1.6-7.tar.gz
 # install.packages("sp", type = "source")
-# install.packages("rgdal", repos = NULL, type = "source")
+# install.packages("rgdal_1.6-7.tar.gz", repos = NULL, type = "source")
 # Load CRAN packages needed in this script
-# install.packages(c("circular", "rjags", "sp", "raster", "png", "googlesheets", "magrittr", "oce"))
+# install.packages(c("circular", "rjags", "sp", "raster", "png", "googlesheets4", "magrittr", "oce"))
 
 ## Clear everything
 rm(list=ls())

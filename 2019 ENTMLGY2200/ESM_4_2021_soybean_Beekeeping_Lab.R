@@ -28,7 +28,7 @@
 # or adapt the paths for the instructions below
 
 # Load Ubuntu packages
-# sudo apt install jags r-cran-rgdal r-recommended 
+# sudo apt install jags r-cran-rgdal r-recommended sudo gdal-bin proj-bin libgdal-dev libproj-dev
 # Load CRAN packages needed in this script
 # install.packages(c("circular", "rjags", "sp", "rgdal", "raster", "png", "googlesheets", "magrittr", "oce"))
 
